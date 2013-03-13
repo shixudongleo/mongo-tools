@@ -11,6 +11,8 @@ MongoTools::Application.routes.draw do
   get "/monitoring" => "monitoring#index"
 
   get "/sharding" => "sharding#index"
+  get "/sharding/shards" => "sharding#show_shards"
+  get "/sharding/collections" => "sharding#show_collections"
 
   resources :query_analyzer, :only => [:index]
   root :to => redirect("/explorer")

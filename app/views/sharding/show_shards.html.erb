@@ -1,0 +1,99 @@
+<div class="page-header">
+  <h3>Sharding</h3>
+</div>
+
+
+<div class="tabbable">
+  <ul class="nav nav-tabs">
+    <li ><a href="/sharding">Dashboard</a></li>
+    <li ><a href="/sharding/collections">Collections</a></li>
+    <li ><a href="/sharding/shards">Shards</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="graphs">
+
+      <div class="container-fluid">
+        <div class="row-fluid">
+
+          <div id="content" class="span8">
+            <div id="charts">
+              <% @shards.each do |shard| %>
+                <div class="graph">
+                  <text font-size="18" style="color: black;"><%= shard.name %><br></text>
+                  <canvas id='<%= shard.name %>' height="50" width="640" count="<%= shard.collections.size %>" total="<%= shard.total_size %>" 
+                    <% for i in (0...shard.collections.size) do%>
+                    collection_<%= i %>_name="<%= shard.collections[i].name %>"
+                    collection_<%= i %>_size="<%= shard.collections[i].size %>"
+                    collection_<%= i %>_color="<%= @color_table[shard.collections[i].name] %>"
+                    <% end %>
+                  >
+                  </canvas>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <div id="rightMargin" class="span4">
+            <div id="collections-legend" style="font-family: 'Helvetica Neue', Helvetica, sans-serif;">
+              <h2>Collections</h2>
+              <% @color_table.each do |name, color| %>
+                <div class="key" style="word-wrap: break-word;">
+                  <div class="color" style="margin-right: 5px; background-color: <%= color %>; height: 15px; width: 15px; float: left;">
+                  </div>
+                  <span class="ns" style="font-family: 'Helvetica Neue', Helvetica, Sans;"><%= name %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  window.onload = function(){
+    var charts = document.getElementById("charts");
+    var shards = charts.getElementsByTagName("canvas");
+    console.log(shards);
+    for (var i = 0; i < shards.length; i++){
+      paper = new paper.PaperScope();
+      var shard = shards[i];
+      console.log(shard);
+      var id = shard.id;
+      console.log(id);
+      paper.setup(id);
+
+      //draw inert collections
+      var count = shard.getAttribute("count");
+      console.log(count);
+      var total = shard.getAttribute("total");
+      console.log(total);
+ 
+      with (paper) {
+        var rect = new Path.Rectangle(0, 0, 640, 50);
+        rect.fillColor = "#3182bd";
+
+        var j = 0;
+        var x = 0;
+        while (j < count){
+          var collection_size = shard.getAttribute("collection_" + j + "_size");
+          console.log(collection_size);
+          var collection_color = shard.getAttribute("collection_" + j + "_color");
+          console.log(collection_color);
+          var len = collection_size * 640 / total;
+          var coll_rect = new Path.Rectangle(x, 0, len, 50);
+          x += len;
+          coll_rect.fillColor = collection_color;
+
+          j++;
+        }
+
+        view.draw();
+      }   
+    }
+  }
+</script>
