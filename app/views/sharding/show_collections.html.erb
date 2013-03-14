@@ -14,30 +14,41 @@
       
       <div class="container-fluid">
         <div class="row-fluid">
-          <div id="leftMargin" class="span2"></div>
           <div id="content" class="span8">
-            <canvas id="myCanvas" resize></canvas>
+            <canvas id="myCanvas" height="450" width="774" count="<%= @collection.get_shards_info_by_percent.size %>" color="<%= @collection_color_table[@collection.name] %>"
+              <% for i in (0...@collection.shards_info.size) do%>
+              shard_<%= i %>_name="<%= @collection.get_shards_info_by_percent.keys[i] %>"
+              shard_<%= i %>_size="<%= @collection.get_shards_info_by_percent.values[i] %>"
+              shard_<%= i %>_color="<%= @shard_color_table[@collection.get_shards_info_by_percent.keys[i]] %>"
+              <% end %>
+
+            >
+            </canvas>
           </div>
-          <div id="rightMargin" class="span2">
+
+          <div id="rightMargin" class="span4">
             <div id="collections-legend" style="font-family: 'Helvetica Neue', Helvetica, sans-serif;">
               <h2>Collections</h2>
-              <div class="key" style="word-wrap: break-word;">
-                <div class="color" style="margin-right: 5px; background-color: rgb(57, 59, 121); height: 15px; width: 15px; float: left;"></div>
-                <span class="ns" style="font-family: 'Helvetica Neue', Helvetica, Sans;">cloud-docs.spreadsheets</span>
-              </div>
+              <% @collection_color_table.each do |name, color| %>
+                <div class="key" style="word-wrap: break-word;">
+                  <div class="color" style="margin-right: 5px; background-color: <%= color %>; height: 15px; width: 15px; float: left;">
+                  </div>
+                  <span class="ns" style="font-family: 'Helvetica Neue', Helvetica, Sans;"><%= name %></span>
+                </div>
+              <% end %>
             </div>
             <div id="collections-legend" style="font-family: 'Helvetica Neue', Helvetica, sans-serif;">
               <h2>Shards</h2>
-              <div class="key" style="word-wrap: break-word;">
-                <div class="color" style="margin-right: 5px; background-color: rgb(31, 119, 180); height: 15px; width: 15px; float: left;"></div>
-                <span class="ns" style="font-family: 'Helvetica Neue', Helvetica, Sans;">shard-a</span>
-              </div>
-              <div class="key" style="word-wrap: break-word;">
-                <div class="color" style="margin-right: 5px; background-color: rgb(255, 127, 14); height: 15px; width: 15px; float: left;"></div>
-                <span class="ns" style="font-family: 'Helvetica Neue', Helvetica, Sans;">shard-b</span>
-              </div>
+              <% @shard_color_table.each do |name, color| %>
+                <div class="key" style="word-wrap: break-word;">
+                  <div class="color" style="margin-right: 5px; background-color: <%= color %>; height: 15px; width: 15px; float: left;">
+                  </div>
+                  <span class="ns" style="font-family: 'Helvetica Neue', Helvetica, Sans;"><%= name %></span>
+                </div>
+              <% end %>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -48,30 +59,39 @@
 
 <script type="text/javascript">
     window.onload = function(){
-      paper.setup("myCanvas");
-      var rect = new paper.Path.Rectangle(100, 100, 819, 499);
-      rect.strokeColor = "white"
-      rect.fillColor = "#393b79";
+      var canvas = document.getElementById("myCanvas");
+      var height = canvas.height;
+      var width = canvas.width;
+      var background_color = canvas.getAttribute("color");
+      var count = canvas.getAttribute("count");
 
+      paper.setup(canvas);
+      with(paper){
+        var rect = new Path.Rectangle(0, 0, width, height);
+        rect.strokeColor = "white"
+        rect.fillColor = background_color;
 
-      var center = new paper.Point(510, 350);
-      var radius = 250 * 3 / 4;
-      var topCenter = new paper.Point(center.x, center.y - radius);
-      var bottomCenter = new paper.Point(center.x, center.y + radius);
-      var rightSemiCircle = new paper.Path();
-      var leftSemiCircle = new paper.Path();
-      for(var i = 0; i < 181; i+=1)
-      {
-          rightSemiCircle.add(topCenter);
-          topCenter = topCenter.rotate(1, center);
-          leftSemiCircle.add(bottomCenter);
-          bottomCenter = bottomCenter.rotate(1, center);
+        var center = new Point(width / 2, height / 2);
+        var factor = 3 / 4;
+        var radius = height / 2 * factor;
+        var point = new Point(center.x, center.y - radius);
+        var stroke_width = height / 2 / 4;
+        for (var i = 0; i < count; i++)
+        {
+          var percent = canvas.getAttribute("shard_" + i + "_size");
+          var color = canvas.getAttribute("shard_" + i + "_color");
+          var circle = new Path();
+          circle.strokeWidth = stroke_width;
+          circle.strokeColor = color;
+
+          for (var j = 0; j < parseInt(360 * percent); j++)
+          {
+            circle.add(point);
+            point = point.rotate(1, center);
+          }
+        }
+        view.draw();
+
       }
-
-      rightSemiCircle.strokeWidth =  leftSemiCircle.strokeWidth = 250 / 4;
-      rightSemiCircle.strokeColor = "#1f77b4";
-      leftSemiCircle.strokeColor = "#ff7f0e";
-      paper.view.draw();
-
     }
   </script>

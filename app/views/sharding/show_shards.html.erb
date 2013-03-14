@@ -23,8 +23,8 @@
                   <canvas id='<%= shard.name %>' height="50" width="640" count="<%= shard.collections.size %>" total="<%= shard.total_size %>" 
                     <% for i in (0...shard.collections.size) do%>
                     collection_<%= i %>_name="<%= shard.collections[i].name %>"
-                    collection_<%= i %>_size="<%= shard.collections[i].size %>"
-                    collection_<%= i %>_color="<%= @color_table[shard.collections[i].name] %>"
+                    collection_<%= i %>_size="<%= shard.collections[i].get_size_in_shard(shard.name) %>"
+                    collection_<%= i %>_color="<%= @collection_color_table[shard.collections[i].name] %>"
                     <% end %>
                   >
                   </canvas>
@@ -36,7 +36,7 @@
           <div id="rightMargin" class="span4">
             <div id="collections-legend" style="font-family: 'Helvetica Neue', Helvetica, sans-serif;">
               <h2>Collections</h2>
-              <% @color_table.each do |name, color| %>
+              <% @collection_color_table.each do |name, color| %>
                 <div class="key" style="word-wrap: break-word;">
                   <div class="color" style="margin-right: 5px; background-color: <%= color %>; height: 15px; width: 15px; float: left;">
                   </div>
