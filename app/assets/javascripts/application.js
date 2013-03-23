@@ -19,4 +19,5 @@
 //= require codemirror/utils/formatting
 //= require codemirror/utils/javascript-hint
 //= require codemirror/utils/matchbrackets
-//= require_tree .
+//= require_directory .
+//= require_directory ./explorer/
